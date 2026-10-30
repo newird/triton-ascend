@@ -118,9 +118,9 @@ def test_ir(output_dir=None):
     assert "!tt.ptr" in text, "route A entry must keep pointer args at AST stage"
     module = lower_offline(module, ctx, output_dir=output_dir)
     text = str(module)
-    check_lowered_ir(text, loads=0, stores=0, buffers=8,
-                     extra=("#hivm.address_space<cbuf>", "#hivm.address_space<cc>",
-                            "#hivm.tcore_type<CUBE>", "#hivm.func_core_type<AIV>"))
+    check_lowered_ir(
+        text, loads=0, stores=0, buffers=8, extra=("#hivm.address_space<cbuf>", "#hivm.address_space<cc>",
+                                                   "#hivm.tcore_type<CUBE>", "#hivm.func_core_type<AIV>"))
     assert text.count("hivm.hir.nd2nz") == 3, "GM->L1 x3 (q, k, v)"
     transpose_count = text.count("hivm.hir.vtranspose")
     strided_store_count = text.count("ave.hir.store_with_stride")
@@ -146,10 +146,10 @@ def test_ir(output_dir=None):
             pos = text.index(pat, pos + 1)
         return pos
 
-    assert text.index("hivm.hir.fixpipe") < text.index("hivm.hir.sync_block_set"),         "S flag after fixpipe"
-    assert text.index("hivm.hir.sync_block_wait") < text.index("ave.hir.vload"),         "softmax waits for S"
-    assert nth("hivm.hir.sync_block_set", 2) > nth("hivm.hir.copy", 1),         "P flag after the UB->L1 copy"
-    assert nth("hivm.hir.sync_block_wait", 2) < nth("hivm.hir.nd2nz", 3),         "AIC waits before loading V and using P"
+    assert text.index("hivm.hir.fixpipe") < text.index("hivm.hir.sync_block_set"), "S flag after fixpipe"
+    assert text.index("hivm.hir.sync_block_wait") < text.index("ave.hir.vload"), "softmax waits for S"
+    assert nth("hivm.hir.sync_block_set", 2) > nth("hivm.hir.copy", 1), "P flag after the UB->L1 copy"
+    assert nth("hivm.hir.sync_block_wait", 2) < nth("hivm.hir.nd2nz", 3), "AIC waits before loading V and using P"
     assert 'mix_mode = "mix"' in text, "cube+vector kernel must be tagged mix"
     print("IR PASS: flash_attn UB->L1 HIVM structure ok"
           " (3 nd2nz / 2 mmadL1 / 2 fixpipe / 64 vsstb / 1 UB->L1 copy)")

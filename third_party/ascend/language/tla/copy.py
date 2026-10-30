@@ -31,8 +31,6 @@ def _fixpipe_dma_mode(dst):
     return "nz2nd" if len(dst.shape) == 2 else "normal"
 
 
-
-
 def _is_contiguous(buf):
     if not buf.strides:
         return True
@@ -76,8 +74,7 @@ def copy(src, dst, _semantic=None):
     # DMAs need identical shapes.
     nd2nz = ((src.space, dst.space) == ("gm", "l1") and _is_zn_fractal(dst.shape, src.shape))
     nz2nd = (src.space == "l0c" and _is_zn_fractal(src.shape, dst.shape))
-    ub2l1 = ((src.space, dst.space) == ("ub", "l1") and
-             _same_contiguous_extent(src, dst))
+    ub2l1 = ((src.space, dst.space) == ("ub", "l1") and _same_contiguous_extent(src, dst))
     if (src.shape != dst.shape and not (nd2nz or nz2nd or ub2l1)) or \
             src.dtype != dst.dtype:
         raise ValueError("DMA source and destination must have matching shape and element type")
@@ -93,11 +90,9 @@ def copy(src, dst, _semantic=None):
         dst_handle = dst.handle
         if src.shape != dst.shape:
             if len(src.shape) > 1:
-                src_handle = _semantic.builder.create_memref_collapse_to_1d(
-                    src_handle)
+                src_handle = _semantic.builder.create_memref_collapse_to_1d(src_handle)
             if len(dst.shape) > 1:
-                dst_handle = _semantic.builder.create_memref_collapse_to_1d(
-                    dst_handle)
+                dst_handle = _semantic.builder.create_memref_collapse_to_1d(dst_handle)
         _semantic.builder.create_copy_buffer(src_handle, dst_handle)
     elif src.space == "l0c":
         _semantic.builder.create_hivm_fixpipe(src.handle, dst.handle, _fixpipe_dma_mode(dst))

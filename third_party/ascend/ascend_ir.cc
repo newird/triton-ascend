@@ -1583,17 +1583,16 @@ void init_ascend_ir(py::module &&m) {
                      "create_memref_collapse_to_1d requires static dimensions");
                numel *= dim;
              }
-             auto flatType = MemRefType::get(
-                 {numel}, srcType.getElementType(), MemRefLayoutAttrInterface{},
-                 srcType.getMemorySpace());
+             auto flatType = MemRefType::get({numel}, srcType.getElementType(),
+                                             MemRefLayoutAttrInterface{},
+                                             srcType.getMemorySpace());
              ReassociationIndices indices;
              for (int64_t i = 0, e = srcType.getRank(); i < e; ++i)
                indices.push_back(i);
              return self.getBuilder()
-                 .create<memref::CollapseShapeOp>(source.getLoc(), flatType,
-                                                  source,
-                                                  SmallVector<ReassociationIndices>{
-                                                      indices})
+                 .create<memref::CollapseShapeOp>(
+                     source.getLoc(), flatType, source,
+                     SmallVector<ReassociationIndices>{indices})
                  .getResult();
            })
       .def("create_copy_tensor",

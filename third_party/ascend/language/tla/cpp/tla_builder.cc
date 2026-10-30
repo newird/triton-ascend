@@ -320,14 +320,14 @@ void init_tla_builder(py::module &&m) {
                   "create_simd_vsts_stride requires exactly two indices");
             auto &builder = self.getBuilder();
             auto loc = self.getLastLoc();
-            auto strideValue =
-                builder.create<arith::ConstantOp>(loc, builder.getIndexAttr(stride));
+            auto strideValue = builder.create<arith::ConstantOp>(
+                loc, builder.getIndexAttr(stride));
             auto indicesIdx = toIndexValues(self, indices);
             builder.create<hivmave::VFStoreWithStrideOp>(
                 loc, ptr, ValueRange(indicesIdx), strideValue, mask, val);
           },
-          py::arg("ptr"), py::arg("indices"), py::arg("stride"),
-          py::arg("val"), py::arg("mask"))
+          py::arg("ptr"), py::arg("indices"), py::arg("stride"), py::arg("val"),
+          py::arg("mask"))
       .def(
           "create_simd_binary",
           [](TLABuilder &self, std::string &kind, Value &lhs, Value &rhs,
